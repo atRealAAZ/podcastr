@@ -36,6 +36,7 @@ class Article(BaseModel):
 class RankedArticle(Article):
     score: float
     reasoning: str
+    article_id: int  # Original article number from LLM ranking
 
 class SearchResponse(BaseModel):
     articles: List[RankedArticle]
@@ -54,7 +55,7 @@ def rank_articles_by_profile(articles: List[Article], profile: str, num_results:
     """Use LLM to rank articles based on user profile"""
     if not profile:
         return SearchResponse(
-            articles=[RankedArticle(**article.dict(), score=0.0, reasoning="No profile provided") for article in articles[:num_results]],
+            articles=[RankedArticle(**article.dict(), score=0.0, reasoning="No profile provided", article_id=i+1) for i, article in enumerate(articles[:num_results])],
             llm_reasoning="No profile was provided for ranking."
         )
     
@@ -133,7 +134,8 @@ SUMMARY:
                 ranked_article = RankedArticle(
                     **article.dict(),
                     score=score,
-                    reasoning=explanations.get(article_num, "No explanation provided")
+                    reasoning=explanations.get(article_num, "No explanation provided"),
+                    article_id=article_num  # Preserve the original article number
                 )
                 ranked_articles.append(ranked_article)
 
@@ -149,7 +151,7 @@ SUMMARY:
     except Exception as e:
         print(f"Error in LLM ranking: {str(e)}")
         return SearchResponse(
-            articles=[RankedArticle(**article.dict(), score=0.0, reasoning="Ranking failed") for article in articles[:num_results]],
+            articles=[RankedArticle(**article.dict(), score=0.0, reasoning="Ranking failed", article_id=i+1) for i, article in enumerate(articles[:num_results])],
             llm_reasoning=f"Error during ranking: {str(e)}"
         )
 

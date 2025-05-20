@@ -23,6 +23,7 @@ interface Article {
   published: string;
   score: number;
   reasoning: string;
+  article_id: number;
 }
 
 interface SearchResponse {
@@ -209,7 +210,7 @@ function App() {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                       <Typography variant="caption" color="text.secondary">
-                        Article #{index + 1}
+                        Article #{article.article_id}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         Score: {article.score.toFixed(1)}
